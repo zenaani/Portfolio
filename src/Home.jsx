@@ -44,7 +44,7 @@ const Home = ({ scrollToContact }) => {
         </div>
 
         <div className="font-mont font-bold bg-white absolute top-0 left-0 px-10">
-          Site under Construction
+          Site under Construction and Not optimized for smartphone.
         </div>
 
         <div className="flex w-3/4 absolute">
