@@ -187,7 +187,7 @@ export const Works = () => {
                   className="h-[350px] object-cover mr-24 rounded-xl shadow-2xl hover:scale-125 transition-all duration-1000"
                 ></img>
                 <div className="flex flex-col gap-10 text-5xl font-mont font-semibold">
-                  Face Recognition Security System
+                  Blend - Social Media Platform
                   <div className="flex gap-3 text-3xl items-center">
                     <div>View Code</div>
                     <FaGithub />
