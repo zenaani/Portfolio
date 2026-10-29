@@ -1,61 +1,102 @@
-import { useEffect, useRef, useState } from "react";
-import "./App.css";
-import Home from "./Home";
-import AboutMe from "./AboutMe";
-import { Works } from "./Works";
-import Contact from "./Contact";
-import TechStack from "./TechStack";
-import { gsap } from "gsap";
-import ScrollToPlugin from "gsap/ScrollToPlugin";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import React, { useEffect, useState, useRef } from "react";
+import Lenis from "lenis";
+import "./portfolio.css";
+import { initScrollAnimations } from "./motion";
 
-gsap.registerPlugin(ScrollToPlugin);
-gsap.registerPlugin(ScrollTrigger);
+import SiteLoader from "./components/SiteLoader";
+import CustomCursor from "./components/CustomCursor";
+import SiteHeader from "./components/SiteHeader";
+import Hero from "./components/Hero";
+import WorkSection from "./components/WorkSection";
+import Projects from "./components/Projects";
+import About from "./components/About";
+import Contact from "./components/Contact";
 
 function App() {
-  const contactRef = useRef(null);
-  const contactCompRef = useRef(null);
-  const aboutRef = useRef(null);
+  const [loaderDismissed, setLoaderDismissed] = useState(false);
+  const lenisRef = useRef(null);
 
   useEffect(() => {
-    gsap.fromTo(
-      contactCompRef.current,
-      {
-        translateY: -50,
-        scrollTrigger: {
-          trigger: aboutRef.current,
-          scrub: 0.6,
-        },
-      },
-      {
-        translateY: 0,
-        scrollTrigger: {
-          trigger: aboutRef.current,
-          scrub: 0.6,
-        },
-      }
-    );
-  });
+    const timer = setTimeout(() => {
+      setLoaderDismissed(true);
+    }, 2200);
 
-  const scrollToContact = () => {
-    gsap.to(window, { duration: 1, scrollTo: contactRef.current });
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 1,
+    });
+    lenisRef.current = lenis;
+
+    // Initialize all scroll animations
+    const cleanupMotion = initScrollAnimations(lenis);
+
+    // Wire up dialog open/close buttons & smooth navigation
+    const handlePullClick = (e) => {
+      const pullBtn = e.target.closest(".contact-pull, .contact-knot, .contact-thread-grip");
+      const dialog = document.querySelector("dialog.contact-dialog");
+      if (pullBtn && dialog) {
+        if (typeof dialog.showModal === "function") {
+          dialog.showModal();
+        } else {
+          dialog.setAttribute("open", "true");
+        }
+      }
+
+      const closeBtn = e.target.closest(".contact-form-close");
+      if (closeBtn && dialog) {
+        if (typeof dialog.close === "function") {
+          dialog.close();
+        } else {
+          dialog.removeAttribute("open");
+        }
+      }
+
+      const topBtn = e.target.closest(".contact-top");
+      if (topBtn) {
+        e.preventDefault();
+        lenis.scrollTo(0);
+      }
+    };
+
+    document.addEventListener("click", handlePullClick);
+
+    return () => {
+      clearTimeout(timer);
+      if (cleanupMotion) cleanupMotion();
+      document.removeEventListener("click", handlePullClick);
+      lenis.destroy();
+    };
+  }, []);
+
+  const handleNavigate = (id) => {
+    const el = document.getElementById(id);
+    if (el && lenisRef.current) {
+      lenisRef.current.scrollTo(el, { offset: -20 });
+    } else if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
     <>
-      <div
-        ref={contactCompRef}
-        className="fixed top-[0px] right-0 text-xl font-mont bg-white text-black font-semibold p-2 mr-10"
-      >
-        Contact
-      </div>
-      <Home scrollToContact={scrollToContact}></Home>
-      <div ref={aboutRef}>
-        <AboutMe></AboutMe>
-      </div>
-      <Works></Works>
-      <TechStack></TechStack>
-      <Contact ref={contactRef}></Contact>
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
+      <SiteLoader
+        loaded={loaderDismissed}
+        onDismiss={() => setLoaderDismissed(true)}
+      />
+      <CustomCursor />
+      <SiteHeader onNavigate={handleNavigate} />
+      <main id="main-content">
+        <Hero />
+        <WorkSection />
+        <Projects />
+        <About />
+        <Contact />
+      </main>
     </>
   );
 }
