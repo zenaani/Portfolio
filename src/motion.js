@@ -34,16 +34,9 @@ export function initScrollAnimations(lenis) {
         }
       );
 
-      // Hero thread draw-in
-      const heroPaths = hero.querySelectorAll(".hero-thread-path");
-      heroPaths.forEach((path) => {
-        path.style.visibility = "visible";
-        gsap.fromTo(
-          path,
-          { strokeDashoffset: 2500, strokeDasharray: 2500 },
-          { strokeDashoffset: 0, duration: 1.8, ease: "power2.inOut" }
-        );
-      });
+      // Notify hero motion and text complete for HeroThread
+      window.dispatchEvent(new Event("portfolio:hero-motion"));
+      window.dispatchEvent(new Event("portfolio:hero-text-complete"));
     }, 600);
   }
 

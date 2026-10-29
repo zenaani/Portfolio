@@ -11,14 +11,22 @@ import WorkSection from "./components/WorkSection";
 import Projects from "./components/Projects";
 import About from "./components/About";
 import Contact from "./components/Contact";
+import Thread from "./components/Thread";
 
 function App() {
   const [loaderDismissed, setLoaderDismissed] = useState(false);
   const lenisRef = useRef(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const dismissLoader = () => {
       setLoaderDismissed(true);
+      document.documentElement.dataset.signatureComplete = "true";
+      window.dispatchEvent(new Event("portfolio:signature-complete"));
+      window.dispatchEvent(new Event("portfolio:hero-text-complete"));
+    };
+
+    const timer = setTimeout(() => {
+      dismissLoader();
     }, 2200);
 
     const lenis = new Lenis({
@@ -86,10 +94,16 @@ function App() {
       </a>
       <SiteLoader
         loaded={loaderDismissed}
-        onDismiss={() => setLoaderDismissed(true)}
+        onDismiss={() => {
+          setLoaderDismissed(true);
+          document.documentElement.dataset.signatureComplete = "true";
+          window.dispatchEvent(new Event("portfolio:signature-complete"));
+          window.dispatchEvent(new Event("portfolio:hero-text-complete"));
+        }}
       />
       <CustomCursor />
       <SiteHeader onNavigate={handleNavigate} />
+      <Thread />
       <main id="main-content">
         <Hero />
         <WorkSection />
