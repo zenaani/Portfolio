@@ -96,16 +96,21 @@ export default function HeroThread() {
 
         // Glyph range extraction with safety bounds
         for (let [lineIdx, charIdx] of [
-          [0, 3],
-          [0, 4],
-          [1, 0],
-          [1, 1],
-          [2, 8],
-          [2, 9],
+          [0, 2], // 'B' in 'I BUILD'
+          [0, 3], // 'U' in 'I BUILD'
+          [1, 0], // 'A' in 'APPS THAT'
+          [1, 1], // 'P' (1st) in 'APPS THAT'
+          [1, 2], // 'P' (2nd) in 'APPS THAT'
+          [1, 3], // 'S' in 'APPS THAT'
+          [1, 6], // 'H' in 'APPS THAT'
+          [1, 8], // 'T' in 'APPS THAT'
         ]) {
           try {
             let lineEl = heroLines[lineIdx];
             let textNode = lineEl?.firstChild;
+            while (textNode && textNode.nodeType !== Node.TEXT_NODE) {
+              textNode = textNode.firstChild;
+            }
             let textLen = textNode?.textContent?.length || 0;
             let safeChar = Math.min(charIdx, Math.max(0, textLen - 1));
             let range = document.createRange();
@@ -113,10 +118,10 @@ export default function HeroThread() {
             range.setEnd(textNode, Math.min(textLen, safeChar + 1));
             let glyphRect = range.getBoundingClientRect();
             glyphs.set(`${lineIdx}:${charIdx}`, {
-              x: glyphRect.left - heroBounds.left + 0.073 * fontSize - Number(gsap.getProperty(lineEl, "x")),
-              y: lineBounds[lineIdx].top - heroBounds.top + 0.034 * fontSize,
+              x: glyphRect.left - heroBounds.left - Number(gsap.getProperty(lineEl, "x")),
+              y: glyphRect.top - heroBounds.top,
               w: glyphRect.width || fontSize * 0.5,
-              h: 0.69 * fontSize,
+              h: glyphRect.height || 0.69 * fontSize,
             });
           } catch (err) {
             glyphs.set(`${lineIdx}:${charIdx}`, {
@@ -159,12 +164,14 @@ export default function HeroThread() {
         return { ...g, x: g.x + lineX[lineIdx] };
       };
 
-      let k = getGlyph(0, 3),
-        L = getGlyph(0, 4),
+      let k = getGlyph(0, 2),
+        L = getGlyph(0, 3),
         P = getGlyph(1, 0),
         R = getGlyph(1, 1),
-        q = getGlyph(2, 8),
-        I = getGlyph(2, 9),
+        P2 = getGlyph(1, 2),
+        S_glyph = getGlyph(1, 3),
+        q = getGlyph(1, 6),
+        I = getGlyph(1, 8),
         O = q.h;
 
       let D = { x: Math.max(32, 0.063 * heroBounds.width), y: 86 };
@@ -178,13 +185,11 @@ export default function HeroThread() {
         y: heroBounds.height - 0.5 * paddingBottom,
       };
 
-      let B = { x: L.x + 0.54 * L.w, y: L.y + 0.31 * L.h };
-      let W = { x: k.x - 0.18 * fontSize, y: k.y + 0.05 * O };
-      let z = { x: P.x + 0.44 * P.w, y: P.y + 0.32 * P.h };
-      let H = { x: P.x + 1.8 * P.w, y: P.y - 0.04 * P.h };
-      let Y = Math.max(8, P.x - 0.08 * P.w);
-      let G = { x: q.x + 0.18 * q.w, y: q.y - 0.015 * O };
-      let V = { x: Y + G.y - (P.y + 0.57 * P.h), y: G.y };
+      let B = { x: L.x + 0.5 * L.w, y: L.y + 0.3 * L.h };
+      let W = { x: k.x - 0.1 * fontSize, y: k.y + 0.05 * O };
+      let H = { x: R.x + 0.5 * R.w, y: P.y - 0.04 * P.h };
+      let z = { x: S_glyph.x + 0.2 * S_glyph.w, y: S_glyph.y + 0.38 * S_glyph.h };
+      let G = { x: q.x, y: q.y - 0.02 * O };
 
       const lerp = (p1, p2, f) => ({ x: p1.x + (p2.x - p1.x) * f, y: p1.y + (p2.y - p1.y) * f });
       const splitBezier = ([p0, p1, p2, p3], f) => {
@@ -200,16 +205,11 @@ export default function HeroThread() {
         ];
       };
 
-      let Q = (4 * Y - 2 * z.x + V.x) / 3;
-      let [Z, J] = splitBezier(
-        [
-          z,
-          { x: Q, y: z.y + ((Q - z.x) * (z.y - H.y)) / (z.x - H.x || 1) },
-          { x: z.x + Q - V.x, y: V.y },
-          V,
-        ],
-        0.5
-      );
+      let p0 = z;
+      let p1 = { x: z.x + (z.x - H.x) * 0.4, y: z.y + (z.y - H.y) * 0.4 };
+      let p2 = { x: G.x - 0.45 * (G.x - z.x), y: G.y };
+      let p3 = G;
+      let [Z, J] = splitBezier([p0, p1, p2, p3], 0.5);
       let [_, ee] = splitBezier(
         [
           { x: L.x + 0.64 * L.w, y: L.y + 0.49 * L.h },
@@ -220,11 +220,12 @@ export default function HeroThread() {
         0.2
       );
 
+      let splitX = P2.x + 0.5 * P2.w;
       let et = 0,
         er = 1;
       for (let s = 0; s < 20; s++) {
         let mid = (et + er) / 2;
-        splitBezier(ee, mid)[0][3].x > R.x - 0.01 * fontSize ? (et = mid) : (er = mid);
+        splitBezier(ee, mid)[0][3].x > splitX ? (er = mid) : (et = mid);
       }
       let [ea, en] = splitBezier(ee, (et + er) / 2);
       const toCubic = ([, p1, p2, p3]) => `C ${p1.x} ${p1.y}, ${p2.x} ${p2.y}, ${p3.x} ${p3.y}`;
@@ -250,7 +251,7 @@ export default function HeroThread() {
         `M ${ea[0].x} ${ea[0].y} ${toCubic(ea)}`,
         `M ${en[0].x} ${en[0].y} ${toCubic(en)}`,
         `M ${z.x} ${z.y} ${toCubic(Z)}`,
-        `M ${J[0].x} ${J[0].y} ${toCubic(J)} H ${G.x}`,
+        `M ${J[0].x} ${J[0].y} ${toCubic(J)}`,
         `M ${G.x} ${G.y} C ${I.x + 0.45 * I.w} ${G.y}, ${ei.x + 0.08 * I.w} ${q.y - 0.1 * O}, ${ei.x} ${ei.y}`,
         `M ${ei.x} ${ei.y} C ${ei.x - 0.08 * I.w} ${q.y + 0.98 * O}, ${es.x - 0.13 * q.w} ${q.y + 0.97 * O}, ${
           es.x

@@ -7,20 +7,17 @@ export default function WorkSection() {
         <div className="practice-copy">
           <h2 id="work-title" data-heading-reveal="true">
             <span className="heading-line-reveal">
-              <span className="practice-line" data-velocity-type="true">From an idea</span>
+              <span className="practice-line" data-velocity-type="true">From a tap</span>
             </span>
             <span className="heading-line-reveal">
-              <span className="practice-line" data-velocity-type="true" data-direction="reverse">to an app</span>
+              <span className="practice-line" data-velocity-type="true" data-direction="reverse">to a table</span>
             </span>
             <span className="heading-line-reveal">
-              <span className="practice-line" data-velocity-type="true">that</span>
-            </span>
-            <span className="heading-line-reveal">
-              <span className="practice-line" data-velocity-type="true" data-direction="reverse">works.</span>
+              <span className="practice-line" data-velocity-type="true">row.</span>
             </span>
           </h2>
           <p className="practice-description" data-reveal="true">
-            I bring together intuitive Android interfaces, solid application architecture and dependable backend services.
+            I care about what the user sees and what the server does next, and I keep the two honest with each other.
           </p>
         </div>
         <div

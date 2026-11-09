@@ -27,20 +27,23 @@ export default function Hero() {
             </span>
           </span>
           <span className="hero-line-reveal">
-            <span className="hero-line hero-line-last" data-velocity-type="true">
-              FEEL RIGHT.
+            <span
+              className="hero-line hero-line-last hero-accent"
+              data-velocity-type="true"
+            >
+              SHIP.
             </span>
           </span>
         </h1>
         <div className="hero-footer">
           <div className="hero-support">
             <p>
-              Android Developer building thoughtful mobile experiences and
-              reliable backend systems with Kotlin and Spring Boot.
+              Android developer who also writes Spring Boot. I take features from
+              the screen, through the API, down to the database.
             </p>
           </div>
           <a className="scroll-cue" href="#work" data-cursor="FOLLOW">
-            SCROLL TO EXPLORE{" "}
+            SCROLL TO TRACE THE REQUEST{" "}
             <span aria-hidden="true">
               <svg
                 className="navigation-arrow"
